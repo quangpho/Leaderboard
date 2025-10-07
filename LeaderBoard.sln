@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36429.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeaderboardApi", "LeaderboardApi\LeaderboardApi.csproj", "{0C04CFA0-DCF8-4B76-80A8-C1BD2CD3CB20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{B4923625-668A-95CB-F92E-EAD08FFFA065}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{E5D62B0B-DAAD-4EBE-A659-9B2B9D60D6A8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C04CFA0-DCF8-4B76-80A8-C1BD2CD3CB20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C04CFA0-DCF8-4B76-80A8-C1BD2CD3CB20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C04CFA0-DCF8-4B76-80A8-C1BD2CD3CB20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C04CFA0-DCF8-4B76-80A8-C1BD2CD3CB20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4923625-668A-95CB-F92E-EAD08FFFA065}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4923625-668A-95CB-F92E-EAD08FFFA065}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4923625-668A-95CB-F92E-EAD08FFFA065}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4923625-668A-95CB-F92E-EAD08FFFA065}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5D62B0B-DAAD-4EBE-A659-9B2B9D60D6A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5D62B0B-DAAD-4EBE-A659-9B2B9D60D6A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5D62B0B-DAAD-4EBE-A659-9B2B9D60D6A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5D62B0B-DAAD-4EBE-A659-9B2B9D60D6A8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D9439154-57F5-436B-8200-CDA6950E0699}
+	EndGlobalSection
+EndGlobal
