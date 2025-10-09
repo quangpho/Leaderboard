@@ -5,7 +5,9 @@ namespace Services.Interfaces
     {
         Task<PlayerDto> SubmitScore(int playerId, int score);
         Task<List<PlayerDto>> GetTopPlayersAsync();
-        Task<List<PlayerDto>> GetRelativePlayersAsync(int playerId);
+        Task<List<PlayerDto>> GetRelativePlayersAsync(PlayerDto playerDto);
+        Task<PlayerDto> GetPlayerAsync(int playerId);
         Task ResetLeaderboard();
+        Task ReseedLeaderboard();
     }
 }

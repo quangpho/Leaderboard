@@ -30,8 +30,8 @@ public class Repository<T> : IRepository<T> where T : class
     {
         return await DbSet.FindAsync(id);
     }
-    public virtual void DeleteAll()
+    public async Task DeleteAllRecords()
     {
-        DbSet.RemoveRange(DbSet);
+        await DbSet.ExecuteDeleteAsync();
     }
 }

@@ -26,6 +26,7 @@ builder.Services.AddDbContext<LeaderboardDbContext>(options =>
 // Add dependency injections
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddSingleton<ICacheService, CacheService>();
 
 var app = builder.Build();
 

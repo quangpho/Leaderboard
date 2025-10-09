@@ -5,6 +5,6 @@ namespace Repository.Interfaces
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task<T> GetByIdAsync(object id);
-        void DeleteAll();
+        Task DeleteAllRecords();
     }
 }

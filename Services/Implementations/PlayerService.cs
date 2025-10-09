@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Model;
 using Repository.Interfaces;
@@ -9,16 +8,18 @@ namespace Services.Implementations;
 public class PlayerService : IPlayerService
 {
     private readonly IPlayerRepository _playerRepository;
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICacheService _cacheService;
     private readonly ILogger<PlayerService> _logger;
 
     private readonly int _topPlayerCount;
     private readonly int _relativePlayerCount;
-    public PlayerService(IPlayerRepository playerRepository, IConfiguration configuration, IMemoryCache memoryCache, ILogger<PlayerService> logger)
+
+    private const string TopPlayersCacheKey = "TopPlayers";
+    public PlayerService(IPlayerRepository playerRepository, IConfiguration configuration, ILogger<PlayerService> logger, ICacheService cacheService)
     {
         _playerRepository = playerRepository;
-        _memoryCache = memoryCache;
         _logger = logger;
+        _cacheService = cacheService;
         _topPlayerCount = int.TryParse(configuration["PlayerSettings:TopPlayerLimit"], out var topLimit) ? topLimit : 10;
         _relativePlayerCount = int.TryParse(configuration["PlayerSettings:RelativePlayerLimit"], out var relativeLimit) ? relativeLimit : 5;
     }
@@ -26,20 +27,20 @@ public class PlayerService : IPlayerService
     {
         try
         {
-            const string cacheKey = "PlayerService:TopPlayers";
-            if (_memoryCache.TryGetValue(cacheKey, out List<PlayerDto> cachedPlayers))
+            var cacheTopPlayers = _cacheService.GetOrDefault<List<PlayerDto>>(TopPlayersCacheKey);
+            if (cacheTopPlayers != default)
             {
-                return cachedPlayers;
+                return cacheTopPlayers;
             }
             var topPlayers = await _playerRepository.GetMultiplePlayers(0, _topPlayerCount);
-            var topPlayersDto = topPlayers.Select(p => new PlayerDto
+            var topPlayersDto = topPlayers.Select((player, index) => new PlayerDto
             {
-                PlayerId = p.Id.ToString(),
-                Score = p.Score,
-                Rank = topPlayers.IndexOf(p) + 1,
-                LastSubmitDate = p.LastSubmitDate
+                PlayerId = player.Id.ToString(),
+                Score = player.Score,
+                Rank = index + 1,
+                LastSubmitDate = player.LastSubmitDate
             }).ToList();
-            _memoryCache.Set(cacheKey, topPlayers);
+            _cacheService.Set(TopPlayersCacheKey, topPlayersDto, new TimeSpan(7, 0, 0, 0));
             return topPlayersDto;
         }
         catch (Exception e)
@@ -49,23 +50,19 @@ public class PlayerService : IPlayerService
         }
 
     }
-    public async Task<List<PlayerDto>> GetRelativePlayersAsync(int playerId)
+    public async Task<List<PlayerDto>> GetRelativePlayersAsync(PlayerDto playerDto)
     {
         try
         {
-            var targetPlayer = await _playerRepository.GetByIdAsync(playerId);
-            if (targetPlayer == null)
-            {
-                throw new ArgumentException("Player not found");
-            }
-            var playerRank = await _playerRepository.GetPlayerRank(targetPlayer.Score);
-            var relativePlayers = await _playerRepository.GetMultiplePlayers(Math.Max(0, playerRank - _relativePlayerCount - 1), _relativePlayerCount * 2 + 1);
+            var playerId = int.TryParse(playerDto.PlayerId, out var id) ? id : 0;
+            // Get relative players with player in the middle
+            var relativePlayers = await _playerRepository.GetMultiplePlayers(Math.Max(0, playerDto.Rank - _relativePlayerCount - 1), _relativePlayerCount * 2 + 1);
             var result = new List<PlayerDto>();
-            var targetPlayerIndex = relativePlayers.IndexOf(targetPlayer);
+            var playerIndex = relativePlayers.FindIndex(p => p.Id == playerId);
 
             for (int i = 0; i < relativePlayers.Count; i++)
             {
-                if (relativePlayers[i].Id == targetPlayer.Id)
+                if (i == playerIndex)
                 {
                     continue;
                 }
@@ -74,7 +71,8 @@ public class PlayerService : IPlayerService
                 {
                     PlayerId = relativePlayers[i].Id.ToString(),
                     Score = relativePlayers[i].Score,
-                    Rank = i < targetPlayerIndex ? playerRank - (_relativePlayerCount - i) : playerRank + (i - targetPlayerIndex)
+                    Rank = GetRelativeRankFromPlayer(playerDto.Rank, i, playerIndex),
+                    LastSubmitDate = relativePlayers[i].LastSubmitDate
                 });
             }
             return result;
@@ -85,6 +83,40 @@ public class PlayerService : IPlayerService
             throw;
         }
     }
+    public async Task<PlayerDto> GetPlayerAsync(int playerId)
+    {
+        try
+        {
+            var player = await _playerRepository.GetByIdAsync(playerId);
+            if (player == null)
+            {
+                throw new ArgumentException($"Failed to get player {playerId}");
+            }
+
+            return new PlayerDto
+            {
+                PlayerId = player.Id.ToString(),
+                Score = player.Score,
+                Rank = await _playerRepository.GetPlayerRank(playerId),
+                LastSubmitDate = player.LastSubmitDate
+            };
+        }
+        catch (ArgumentException e)
+        {
+            _logger.LogError(e, "Failed to get player {PlayerId}", playerId);
+            throw;
+        }
+    }
+    public async Task ResetLeaderboard()
+    {
+        _cacheService.Remove(TopPlayersCacheKey);
+        await _playerRepository.DeleteAllRecords();
+    }
+    public async Task ReseedLeaderboard()
+    {
+        await _playerRepository.ReseedLeaderboard();
+    }
+
     public async Task<PlayerDto> SubmitScore(int playerId, int score)
     {
         try
@@ -99,32 +131,46 @@ public class PlayerService : IPlayerService
                     LastSubmitDate = DateTime.UtcNow
                 });
             }
-            else
+            else if (targetPlayer.Score != score)
             {
                 targetPlayer.Score = score;
                 targetPlayer.LastSubmitDate = DateTime.UtcNow;
                 await _playerRepository.UpdateAsync(targetPlayer);
             }
-            return new PlayerDto()
+
+            var result = new PlayerDto()
             {
                 PlayerId = playerId.ToString(),
                 Score = score,
-                Rank = await _playerRepository.GetPlayerRank(score) + 1
+                Rank = await _playerRepository.GetPlayerRank(playerId)
             };
+
+            if (result.Rank <= _topPlayerCount)
+            {
+                _cacheService.Remove(TopPlayersCacheKey);
+            }
+            return result;
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
             throw;
         }
+    }
 
-    }
-    public Task<List<PlayerDto>> GetLeaderboard(int player)
+    private int GetRelativeRankFromPlayer(int playerRank, int currentIndex, int playerIndex)
     {
-        throw new NotImplementedException();
-    }
-    public Task ResetLeaderboard()
-    {
-        throw new NotImplementedException();
+        int relativeRank;
+
+        if (currentIndex < playerIndex)
+        {
+            relativeRank = playerRank - (playerIndex - currentIndex);
+        }
+        else
+        {
+            relativeRank = playerRank + (currentIndex - playerIndex);
+        }
+
+        return Math.Max(1, relativeRank);
     }
 }
