@@ -1,6 +1,7 @@
-using LeaderboardApi.Models;
+using LeaderboardApi.Models.Requests;
+using LeaderboardApi.Models.Respones;
+using LeaderboardApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Services.Interfaces;
 
 namespace LeaderboardApi.Controllers
 {
@@ -11,77 +12,56 @@ namespace LeaderboardApi.Controllers
 
         [HttpGet]
         [Route("leaderboard/{playerId}")]
-        public async Task<IActionResult> Leaderboard(int playerId)
+        public async Task<IActionResult> Leaderboard(int playerId, CancellationToken cancellationToken)
         {
-            try
-            {
-                var targetPlayer = await playerService.GetPlayerAsync(playerId);
-                var topPlayers = await playerService.GetTopPlayersAsync();
-                var relativePlayers = await playerService.GetRelativePlayersAsync(targetPlayer);
+            var topPlayers = await playerService.GetTopPlayersAsync(cancellationToken);
+            var relativePlayers = await playerService.GetRelativePlayersAsync(playerId, cancellationToken);
 
-                return Ok(new LeaderboardResponseModel()
-                {
-                    NearbyScores = relativePlayers,
-                    TopScores = topPlayers
-                });
-            }
-            catch (ArgumentException e)
+            return Ok(new LeaderboardResponseModel()
             {
-                return BadRequest(e.Message);
-            }
-            catch (Exception)
-            {
-                return Problem("Internal server error");
-            }
+                NearbyScores = relativePlayers,
+                TopScores = topPlayers
+            });
+
         }
 
         [HttpPost]
         [Route("submit")]
-        public async Task<IActionResult> Submit(PlayerRequestModel request)
+        public async Task<IActionResult> Submit(PlayerRequestModel request, CancellationToken cancellationToken)
         {
-            try
+            var result = await playerService.SubmitScore(request.PlayerId, request.Score, cancellationToken);
+            if (result.isNew)
             {
-                var player = await playerService.SubmitScore(request.PlayerId, request.Score);
-                return Ok(new PlayerResponseModel()
+                return Created($"/api/leaderboard/{result.playerDto.PlayerId}", new PlayerResponseModel()
                 {
-                    Score = player.Score,
-                    Rank = player.Rank
+                    Score = result.playerDto.Score,
+                    Rank = result.playerDto.Rank,
+                    Status = "Created"
                 });
             }
-            catch (Exception)
+
+            return Ok(new PlayerResponseModel()
             {
-                return Problem("Internal server error");
-            }
+                Score = result.playerDto.Score,
+                Rank = result.playerDto.Rank,
+                Status = "Updated"
+            });
         }
-        
+
         [HttpDelete]
         [Route("reset")]
-        public async Task<IActionResult> Reset()
+        public async Task<IActionResult> Reset(CancellationToken cancellationToken)
         {
-            try
-            {
-                await playerService.ResetLeaderboard();
-                return Ok("Leaderboard reset successfully");
-            }
-            catch (Exception)
-            {
-                return Problem("Internal server error");
-            }
+            await playerService.ResetLeaderboard(cancellationToken);
+            return Ok("Leaderboard reset successfully");
         }
-        
+
         [HttpGet]
         [Route("reseed")]
-        public async Task<IActionResult> Reseed()
+        public async Task<IActionResult> Reseed(CancellationToken cancellationToken)
         {
-            try
-            {
-                await playerService.ReseedLeaderboard();
-                return Ok("Leaderboard reseed successfully");
-            }
-            catch (Exception)
-            {
-                return Problem("Internal server error");
-            }
+            await playerService.ReseedLeaderboard(cancellationToken);
+            return Ok("Leaderboard reseed successfully");
         }
     }
 }

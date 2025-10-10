@@ -12,10 +12,10 @@ dotnet build --configuration Release
 
 # Optional: Run database migrations (if Database project uses EF Core)
 Write-Host "Updating database..."
-dotnet ef database update --project ./Database/Database.csproj --startup-project ./LeaderboardApi/LeaderboardApi.csproj
+dotnet ef database update --project LeaderboardApi
 
 Write-Host "Running unit tests..."
-dotnet test ./Test/Test.csproj --configuration Release --no-build
+dotnet test ./LeaderboardApi/Test --configuration Release --no-build
 
 Write-Host "Starting Leaderboard API..."
-dotnet run --project ./LeaderboardApi/LeaderboardApi.csproj
+dotnet run --project ./LeaderboardApi/LeaderboardApi.csproj --no-build

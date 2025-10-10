@@ -1,10 +1,12 @@
 using Database;
+using LeaderboardApi.Infrastructures;
+using LeaderboardApi.Infrastructures.Database;
+using LeaderboardApi.Infrastructures.Middlewares;
+using LeaderboardApi.Repository.Implementations;
+using LeaderboardApi.Repository.Interfaces;
+using LeaderboardApi.Services.Implementations;
+using LeaderboardApi.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Model;
-using Repository.Implementations;
-using Repository.Interfaces;
-using Services.Implementations;
-using Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +16,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddMemoryCache(); 
+builder.Services.AddMemoryCache();
 
 // Add db context
 builder.Services.AddDbContext<LeaderboardDbContext>(options =>
@@ -30,6 +32,7 @@ builder.Services.AddSingleton<ICacheService, CacheService>();
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
