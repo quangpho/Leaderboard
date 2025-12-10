@@ -2,8 +2,8 @@ namespace LeaderboardApi.Services.Interfaces
 {
     public interface ICacheService
     {
-        T GetOrDefault<T>(string key);
-        void Set<T>(string key, T value, TimeSpan? expiration = null);
-        void Remove(string key);
+        Task<T> GetOrDefault<T>(string key);
+        Task Set<T>(string key, T value, TimeSpan? expiration = null);
+        Task Remove(string key);
     }
 }

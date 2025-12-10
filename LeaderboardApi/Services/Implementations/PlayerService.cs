@@ -23,7 +23,7 @@ public class PlayerService : IPlayerService
     }
     public async Task<List<PlayerDto>> GetTopPlayersAsync(CancellationToken cancellationToken)
     {
-        var cacheTopPlayers = _cacheService.GetOrDefault<List<PlayerDto>>(TopPlayersCacheKey);
+        var cacheTopPlayers = await _cacheService.GetOrDefault<List<PlayerDto>>(TopPlayersCacheKey);
         if (cacheTopPlayers != default)
         {
             return cacheTopPlayers;

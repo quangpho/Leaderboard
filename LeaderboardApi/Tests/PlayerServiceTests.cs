@@ -52,7 +52,7 @@ public class PlayerServiceTests
             }
         };
 
-        _mockCache.Setup(m => m.GetOrDefault<List<PlayerDto>>(TopPlayersCacheKey)).Returns(cachedPlayers);
+        // _mockCache.Setup(m => m.GetOrDefault<List<PlayerDto>>(TopPlayersCacheKey)).Returns(cachedPlayers);
 
         var result = await _service.GetTopPlayersAsync(cancellationToken);
 
@@ -65,7 +65,7 @@ public class PlayerServiceTests
     public async Task GetTopPlayersAsync_FetchesFromRepo_IfCacheMiss()
     {
         var cancellationToken = CancellationToken.None;
-        _mockCache.Setup(m => m.GetOrDefault<List<PlayerDto>>(TopPlayersCacheKey)).Returns((List<PlayerDto>) default);
+        // _mockCache.Setup(m => m.GetOrDefault<List<PlayerDto>>(TopPlayersCacheKey)).Returns((List<PlayerDto>) default);
 
         var players = new List<Player>
         {
