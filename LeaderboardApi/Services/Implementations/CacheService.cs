@@ -1,37 +1,39 @@
 using LeaderboardApi.Services.Interfaces;
-using Microsoft.Extensions.Caching.Memory;
-using NRedisStack;
-using NRedisStack.RedisStackCommands;
+using LeaderboardApi.Settings;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using System.Text.Json;
 namespace LeaderboardApi.Services.Implementations
 {
     // Note: Currently using in-memory caching for simplicity.
-    public class CacheService : ICacheService
+    public class CacheService(IOptions<RedisSettings> redisSettings) : ICacheService
     {
-        private IDatabase _database;
-        public CacheService(IConfiguration configuration)
+        private IDatabase Database;
+        private readonly RedisSettings _redisSettings = redisSettings.Value;
+
+        public void CreateDatabase()
         {
-            var connectionString = configuration.GetSection("Redis:ConnectionString").Value;
-            var userName = configuration.GetSection("Redis:Username").Value;
-            var password = configuration.GetSection("Redis:Password").Value;
             var muxer = ConnectionMultiplexer.Connect(
                 new ConfigurationOptions
                 {
                     EndPoints =
                     {
-                        connectionString
+                        _redisSettings.ConnectionString
                     },
-                    User = userName,
-                    Password = password
+                    User = _redisSettings.Username,
+                    Password = _redisSettings.Password
                 }
             );
-            _database = muxer.GetDatabase();
+            Database = muxer.GetDatabase();
         }
 
+        public async Task<T> GetOrSet<T>(string key)
+        {
+            
+        }
         public async Task<T> GetOrDefault<T>(string key)
         {
-            var data = await _database.StringGetAsync(key);
+            var data = await Database.StringGetAsync(key);
             if (data.HasValue)
             {
                 return JsonSerializer.Deserialize<T>(data);
@@ -41,11 +43,11 @@ namespace LeaderboardApi.Services.Implementations
         public async Task Set<T>(string key, T value, TimeSpan? expiration = null)
         {
             var jsonValue = JsonSerializer.Serialize(value);
-            await _database.StringSetAsync(key, jsonValue, expiration);
+            await Database.StringGetAsync(key, jsonValue, expiration);
         }
         public async Task Remove(string key)
         {
-            await _database.KeyDeleteAsync(key);
+            await Database.KeyDeleteAsync(key);
         }
     }
 }

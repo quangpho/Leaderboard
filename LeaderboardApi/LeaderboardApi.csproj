@@ -15,12 +15,14 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
-    <PackageReference Include="NRedisStack" Version="1.1.1" />
+    <PackageReference Include="StackExchange.Redis" Version="2.10.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="xunit" Version="2.9.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Extensions\" />
+    <Folder Include="Middleware\" />
     <Folder Include="Repository\" />
     <Folder Include="Services\" />
   </ItemGroup>
