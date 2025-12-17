@@ -1,53 +1,35 @@
 using LeaderboardApi.Services.Interfaces;
-using LeaderboardApi.Settings;
-using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using System.Text.Json;
 namespace LeaderboardApi.Services.Implementations
 {
-    // Note: Currently using in-memory caching for simplicity.
-    public class CacheService(IOptions<RedisSettings> redisSettings) : ICacheService
+    public class CacheService : ICacheService
     {
-        private IDatabase Database;
-        private readonly RedisSettings _redisSettings = redisSettings.Value;
-
-        public void CreateDatabase()
+        public CacheService(ConnectionMultiplexer multiplexer)
         {
-            var muxer = ConnectionMultiplexer.Connect(
-                new ConfigurationOptions
-                {
-                    EndPoints =
-                    {
-                        _redisSettings.ConnectionString
-                    },
-                    User = _redisSettings.Username,
-                    Password = _redisSettings.Password
-                }
-            );
-            Database = muxer.GetDatabase();
+            _database = multiplexer.GetDatabase();
         }
-
-        public async Task<T> GetOrSet<T>(string key)
-        {
-            
-        }
+        
+        private readonly IDatabase _database;
+        private static readonly JsonSerializerOptions Options = new JsonSerializerOptions();
+        
         public async Task<T> GetOrDefault<T>(string key)
         {
-            var data = await Database.StringGetAsync(key);
+            var data = await _database.StringGetAsync(key);
             if (data.HasValue)
             {
-                return JsonSerializer.Deserialize<T>(data);
+                return JsonSerializer.Deserialize<T>(data, Options);
             }
             return default;
         }
         public async Task Set<T>(string key, T value, TimeSpan? expiration = null)
         {
-            var jsonValue = JsonSerializer.Serialize(value);
-            await Database.StringGetAsync(key, jsonValue, expiration);
+            var jsonValue = JsonSerializer.Serialize(value, Options);
+            await _database.StringSetAsync(key, jsonValue).ConfigureAwait(false);
         }
         public async Task Remove(string key)
         {
-            await Database.KeyDeleteAsync(key);
+            await _database.KeyDeleteAsync(key).ConfigureAwait(false);
         }
     }
 }

@@ -8,6 +8,7 @@ using LeaderboardApi.Services.Implementations;
 using LeaderboardApi.Services.Interfaces;
 using LeaderboardApi.Settings;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +34,18 @@ builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection(Redis
 // Add dependency injections
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddSingleton<ConnectionMultiplexer>(sp =>
+{
+    var redisSettings = sp.GetRequiredService<IOptions<RedisSettings>>().Value;
+    return ConnectionMultiplexer.Connect(new ConfigurationOptions
+    {
+        EndPoints = { redisSettings.ConnectionString },
+        User = redisSettings.Username,
+        Password = redisSettings.Password
+    });
+});
 builder.Services.AddSingleton<ICacheService, CacheService>();
+
     
 var app = builder.Build();
 
