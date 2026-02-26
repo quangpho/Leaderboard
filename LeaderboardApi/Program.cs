@@ -28,6 +28,17 @@ builder.Services.AddDbContext<LeaderboardDbContext>(options =>
 
 });
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Add settings
 builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection(RedisSettings.ConfigName));
 
@@ -45,7 +56,6 @@ builder.Services.AddSingleton<ConnectionMultiplexer>(sp =>
     });
 });
 builder.Services.AddSingleton<ICacheService, CacheService>();
-
     
 var app = builder.Build();
 
@@ -58,7 +68,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,5 +1,6 @@
 using LeaderboardApi.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 using System.Net;
 using System.Text.Json;
 namespace LeaderboardApi.Infrastructures.Middlewares
@@ -38,6 +39,17 @@ namespace LeaderboardApi.Infrastructures.Middlewares
                 {
                     Status = StatusCodes.Status404NotFound,
                     Title = "Player not found",
+                    Detail = ex.Message,
+                    Instance = context.Request.Path
+                };
+            }
+
+            if (ex is RedisConnectionException)
+            {
+                return new ProblemDetails
+                {
+                    Status = StatusCodes.Status503ServiceUnavailable,
+                    Title = "Redis configuration error",
                     Detail = ex.Message,
                     Instance = context.Request.Path
                 };
