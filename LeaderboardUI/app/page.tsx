@@ -1,8 +1,5 @@
-import {PlayerForm} from "../components/FindPlayer";
-
+import { PlayerLeaderBoard } from "../components/PlayerLeaderBoard";
 
 export default function HomePage() {
-  return (
-      <PlayerForm/>
-  );
+  return <PlayerLeaderBoard />;
 }

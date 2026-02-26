@@ -4,7 +4,7 @@ import { useState } from "react";
 import { findById, LeaderBoardResponse } from "../features/leaderboard.api";
 import Table from "./Table";
 
-export function PlayerForm() {
+export function PlayerLeaderBoard() {
   const [inputPlayerId, setInputPlayerId] = useState(0);
   const [data, setData] = useState<LeaderBoardResponse | null>(null);
   const handleClick = async () => {
