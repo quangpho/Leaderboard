@@ -48,6 +48,7 @@ namespace LeaderboardApi.Controllers
             });
         }
 
+        
         [HttpDelete]
         [Route("reset")]
         public async Task<IActionResult> Reset(CancellationToken cancellationToken)

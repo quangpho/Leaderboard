@@ -1,0 +1,28 @@
+services:
+  api:
+    build:
+        context: ./LeaderboardApi
+        dockerfile: dockerfile
+    ports:
+      - "7228:7228"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=LeaderboardDb;User Id=sa;Password=P@ssw0rd;Integrated Security=False;Encrypt=False;TrustServerCertificate=True;
+      - ASPNETCORE_URLS=http://+:7228
+    depends_on:
+        db:
+            condition: service_healthy
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1434:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=P@ssw0rd
+      - MSSQL_PID=Express
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'P@ssw0rd' -Q 'SELECT 1' -N -C || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s

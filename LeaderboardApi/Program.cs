@@ -34,8 +34,8 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -50,13 +50,17 @@ builder.Services.AddSingleton<ConnectionMultiplexer>(sp =>
     var redisSettings = sp.GetRequiredService<IOptions<RedisSettings>>().Value;
     return ConnectionMultiplexer.Connect(new ConfigurationOptions
     {
-        EndPoints = { redisSettings.ConnectionString },
+        EndPoints =
+        {
+            redisSettings.ConnectionString
+        },
         User = redisSettings.Username,
         Password = redisSettings.Password
     });
 });
 builder.Services.AddSingleton<ICacheService, CacheService>();
-    
+
+
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
@@ -66,11 +70,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    app.UseHttpsRedirection();
+}
 
-app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<LeaderboardDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();

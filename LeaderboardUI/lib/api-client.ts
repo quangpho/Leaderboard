@@ -1,5 +1,3 @@
-import { config } from "./config";
-
 export async function get<T>(url: string): Promise<T> {
     console.log("Fetching from URL:", url);
     const res = await fetch(url, {
