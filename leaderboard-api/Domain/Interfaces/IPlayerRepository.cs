@@ -1,6 +1,6 @@
-using LeaderboardApi.Models.Entities;
+using LeaderboardApi.Domain.Entities;
 using LeaderboardApi.Models.Results;
-namespace LeaderboardApi.Repository.Interfaces
+namespace LeaderboardApi.Domain.Interfaces
 {
     public interface IPlayerRepository : IRepository<Player>
     {

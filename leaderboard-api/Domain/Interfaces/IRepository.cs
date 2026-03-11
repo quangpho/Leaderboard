@@ -1,4 +1,4 @@
-namespace LeaderboardApi.Repository.Interfaces
+namespace LeaderboardApi.Domain.Interfaces
 {
     public interface IRepository<T> where T : class
     {

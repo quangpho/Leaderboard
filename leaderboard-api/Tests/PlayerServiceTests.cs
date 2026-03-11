@@ -1,6 +1,6 @@
-﻿using LeaderboardApi.Models.DTOs;
-using LeaderboardApi.Models.Entities;
-using LeaderboardApi.Repository.Interfaces;
+﻿using LeaderboardApi.Domain.Entities;
+using LeaderboardApi.Domain.Interfaces;
+using LeaderboardApi.Models.DTOs;
 using LeaderboardApi.Services.Implementations;
 using LeaderboardApi.Services.Interfaces;
 using Microsoft.Extensions.Caching.Memory;

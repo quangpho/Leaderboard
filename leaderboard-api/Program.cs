@@ -1,9 +1,9 @@
 using Database;
+using LeaderboardApi.Domain.Interfaces;
 using LeaderboardApi.Infrastructures;
 using LeaderboardApi.Infrastructures.Database;
 using LeaderboardApi.Infrastructures.Middlewares;
 using LeaderboardApi.Repository.Implementations;
-using LeaderboardApi.Repository.Interfaces;
 using LeaderboardApi.Services.Implementations;
 using LeaderboardApi.Services.Interfaces;
 using LeaderboardApi.Settings;

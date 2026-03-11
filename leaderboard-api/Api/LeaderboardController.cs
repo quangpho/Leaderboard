@@ -2,8 +2,7 @@ using LeaderboardApi.Models.Requests;
 using LeaderboardApi.Models.Respones;
 using LeaderboardApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-
-namespace LeaderboardApi.Controllers
+namespace LeaderboardApi.Api
 {
     [ApiController]
     [Route("api")]

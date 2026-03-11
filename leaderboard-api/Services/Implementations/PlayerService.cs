@@ -1,7 +1,7 @@
-﻿using LeaderboardApi.Exceptions;
+﻿using LeaderboardApi.Domain.Entities;
+using LeaderboardApi.Domain.Interfaces;
+using LeaderboardApi.Exceptions;
 using LeaderboardApi.Models.DTOs;
-using LeaderboardApi.Models.Entities;
-using LeaderboardApi.Repository.Interfaces;
 using LeaderboardApi.Services.Interfaces;
 namespace LeaderboardApi.Services.Implementations;
 

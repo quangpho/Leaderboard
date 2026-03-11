@@ -1,7 +1,7 @@
+using LeaderboardApi.Domain.Entities;
+using LeaderboardApi.Domain.Interfaces;
 using LeaderboardApi.Infrastructures.Database;
-using LeaderboardApi.Models.Entities;
 using LeaderboardApi.Models.Results;
-using LeaderboardApi.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 namespace LeaderboardApi.Repository.Implementations
 {

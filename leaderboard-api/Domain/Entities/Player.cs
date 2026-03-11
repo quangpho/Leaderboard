@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-namespace LeaderboardApi.Models.Entities
+namespace LeaderboardApi.Domain.Entities
 {
     public class Player
     {

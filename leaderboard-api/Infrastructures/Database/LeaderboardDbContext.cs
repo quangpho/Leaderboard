@@ -1,4 +1,4 @@
-﻿using LeaderboardApi.Models.Entities;
+﻿using LeaderboardApi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 namespace LeaderboardApi.Infrastructures.Database
 {
